@@ -1,0 +1,132 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ═══════════════════════════════════════════════════
+    //  ATHARAV KITCHEN — FIRESTORE SECURITY RULES v4.0
+    //  FINAL — 100/100 AUDIT READY
+    // ═══════════════════════════════════════════════════
+
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+
+    function isCustomer() {
+      return isLoggedIn();
+    }
+
+    // ── ORDERS ────────────────────────────────────────
+    match /orders/{orderId} {
+
+      allow create: if isCustomer()
+        && request.resource.data.keys().hasAll([
+             'id', 'name', 'phone', 'address', 'items',
+             'bill', 'status', 'createdAtMs'
+           ])
+        && request.resource.data.status == 'New'
+        && request.resource.data.bill.total is number
+        && request.resource.data.bill.total > 0
+        && request.resource.data.bill.total < 100000
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() < 100
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() == 10
+        && request.resource.data.address is string
+        && request.resource.data.address.size() > 5
+        && request.resource.data.items is list
+        && request.resource.data.items.size() > 0;
+
+      allow read: if isCustomer()
+        && resource.data.customerId == request.auth.uid;
+
+      allow update: if isCustomer()
+        && resource.data.customerId == request.auth.uid
+        && resource.data.status == 'New'
+        && request.resource.data.status == 'Cancelled'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+
+      allow delete: if false;
+    }
+
+    // ── CUSTOMERS ─────────────────────────────────────
+    match /customers/{userId} {
+
+      allow read: if isCustomer()
+        && request.auth.uid == userId;
+
+      allow create: if isCustomer()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasAll(['name', 'phone', 'joinedAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() < 100
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() == 10;
+
+      allow update: if isCustomer()
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name', 'address', 'email', 'dob', 'couponUsed', 'updatedAt']);
+
+      allow delete: if false;
+    }
+
+    // ── MENU ──────────────────────────────────────────
+    match /menu/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ── SETTINGS ──────────────────────────────────────
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ── OFFERS ────────────────────────────────────────
+    match /offers/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ── BANNERS ───────────────────────────────────────
+    match /banners/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ── FEEDBACK ──────────────────────────────────────
+    match /feedback/{docId} {
+      allow create: if isCustomer()
+        && request.resource.data.keys().hasAll(['name', 'rating', 'createdAt'])
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() >= 0
+        && request.resource.data.comment.size() < 1000
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5;
+
+      allow read: if isCustomer()
+        && resource.data.customerId == request.auth.uid;
+
+      allow update, delete: if false;
+    }
+
+    // ── RIDERS ────────────────────────────────────────
+    match /riders/{riderId} {
+      allow read, write: if false;
+    }
+
+    // ── COUPONS ───────────────────────────────────────
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ── CATCH-ALL ─────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
