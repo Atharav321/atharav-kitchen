@@ -1,0 +1,119 @@
+# ═══════════════════════════════════════════════════════════════
+#  ATHARAV KITCHEN — NETLIFY CONFIGURATION
+#  Security Headers + Performance + Redirects
+# ═══════════════════════════════════════════════════════════════
+
+[build]
+  publish = "."
+  # Google Maps key environment variable
+  # Netlify Dashboard → Site Settings → Environment Variables mein daalo:
+  # Key: GMAPS_KEY   Value: AIzaSyD7Vb4zFHfzsI79BbHjZTIi0s8Asxte6rI
+  # Phir Google Cloud Console mein HTTP referrer restriction lagao:
+  # atharavkitchen.netlify.app/* only allow karo
+
+# ── GLOBAL SECURITY HEADERS ─────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Prevent clickjacking
+    X-Frame-Options = "SAMEORIGIN"
+    # Prevent MIME sniffing
+    X-Content-Type-Options = "nosniff"
+    # XSS protection
+    X-XSS-Protection = "1; mode=block"
+    # Referrer policy
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Permissions policy (restrict sensitive APIs)
+    Permissions-Policy = "camera=(), microphone=(), payment=(), usb=()"
+    # HSTS (force HTTPS for 1 year)
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    # Content Security Policy
+    Content-Security-Policy = """
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' https://www.gstatic.com https://maps.googleapis.com https://maps.gstatic.com https://fonts.googleapis.com https://www.googletagmanager.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: https: blob:;
+      connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://identitytoolkit.googleapis.com https://maps.googleapis.com https://securetoken.googleapis.com wss://firestore.googleapis.com https://www.googleapis.com;
+      frame-src 'none';
+      object-src 'none';
+      base-uri 'self';
+      upgrade-insecure-requests;
+    """
+    # Prevent info leakage
+    Server = ""
+    X-Powered-By = ""
+
+# ── CACHE HEADERS FOR STATIC ASSETS ─────────────────────────
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Content-Type = "application/manifest+json"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Content-Type = "application/xml; charset=UTF-8"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Content-Type = "text/plain; charset=UTF-8"
+
+[[headers]]
+  for = "/firebase-config.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# ── ADMIN PANEL — EXTRA SECURITY ────────────────────────────
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/rider.html"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/start.html"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Robots-Tag = "noindex, nofollow"
+
+# ── REDIRECTS ────────────────────────────────────────────────
+# HTTPS force (Netlify handles this automatically but good to have)
+[[redirects]]
+  from = "http://atharav-kitchen.pages.dev/*"
+  to = "https://atharav-kitchen.pages.dev/:splat"
+  status = 301
+
+# SPA fallback
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Role = ["admin"]}
