@@ -1,0 +1,6 @@
+# ═══════════════════════════════════════════════════════════════
+#  ATHARAV KITCHEN — CLOUDFLARE PAGES REDIRECTS
+# ═══════════════════════════════════════════════════════════════
+
+# SPA Fallback — sab routes index.html pe jayenge
+/*    /index.html   200
