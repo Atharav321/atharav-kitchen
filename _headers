@@ -1,0 +1,88 @@
+# ═══════════════════════════════════════════════════════════════
+#  ATHARAV KITCHEN — CLOUDFLARE PAGES HEADERS
+#  Security + Performance + Cache — Best in Class
+# ═══════════════════════════════════════════════════════════════
+
+# ── GLOBAL SECURITY HEADERS ─────────────────────────────────
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), payment=(), usb=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://maps.googleapis.com https://maps.gstatic.com https://fonts.googleapis.com https://www.googletagmanager.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.googleapis.com https://*.google.com https://*.firebase.com https://*.firebaseio.com https://firebase.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com wss://*.firebaseio.com wss://firestore.googleapis.com https://analytics.google.com https://www.google-analytics.com; frame-src https://atharav-kitchen-e587b.firebaseapp.com https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self'; upgrade-insecure-requests;
+  Server: 
+  X-Powered-By: 
+
+# ── CACHE: IMAGES ────────────────────────────────────────────
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.ico
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+# ── CACHE: FONTS & CSS ───────────────────────────────────────
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+
+# ── CACHE: JS ────────────────────────────────────────────────
+/*.js
+  Cache-Control: public, max-age=86400
+
+# ── MANIFEST & SERVICE WORKER ────────────────────────────────
+/manifest.json
+  Cache-Control: public, max-age=86400
+  Content-Type: application/manifest+json
+
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# ── SEO FILES ────────────────────────────────────────────────
+/sitemap.xml
+  Cache-Control: public, max-age=86400
+  Content-Type: application/xml; charset=UTF-8
+
+/robots.txt
+  Cache-Control: public, max-age=86400
+  Content-Type: text/plain; charset=UTF-8
+
+# ── FIREBASE CONFIG ──────────────────────────────────────────
+/firebase-config.js
+  Cache-Control: public, max-age=3600
+
+# ── ADMIN & PRIVATE PAGES — EXTRA SECURITY ──────────────────
+/admin.html
+  X-Frame-Options: DENY
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache, no-store, must-revalidate
+  X-Content-Type-Options: nosniff
+
+/rider.html
+  X-Frame-Options: DENY
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache, no-store, must-revalidate
+  X-Content-Type-Options: nosniff
+
+/start.html
+  X-Frame-Options: DENY
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache, no-store, must-revalidate
