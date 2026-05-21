@@ -38,6 +38,13 @@
 
   var loaded = 0;
 
+  // Guard: agar firebase already loaded aur initialized hai toh scripts dobara mat load karo
+  if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
+    window.akFirebaseReady = true;
+    window.dispatchEvent(new Event('akFirebaseReady'));
+    return;
+  }
+
   function onAllLoaded() {
     try {
       if (!firebase.apps.length) {

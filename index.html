@@ -295,7 +295,10 @@
         </button>
       </div>
 
-</div>
+</div><!-- afm-body close -->
+</div><!-- screen-login close -->
+
+</div><!-- auth-overlay close -->
 
 <!-- COUPON SUCCESS SCREEN (after register) -->
 <div class="coupon-success-overlay" id="coupon-success" style="display:none;">
@@ -1168,25 +1171,10 @@ if('serviceWorker' in navigator){
 <style>@keyframes popIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}</style>
 
 <script src="firebase-config.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <!-- ═══ APP LOGIC (split from HTML for page speed) ═══ -->
 <script src="app.js" defer></script>
 
 
-<style>
-@media(max-width:640px){
-  .deal-timer{display:flex!important;padding:4px 8px;}
-  .deal-badge{display:flex!important;padding:5px 10px;}
-  .dt-item .dt-num{font-size:0.9rem;}
-  .deal-left p{display:none;}
-}
-@media(max-width:580px){
-  .deal-timer{display:flex!important;}
-  .deal-badge{display:flex!important;}
-}
-</style>
 </body>
 </html>

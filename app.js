@@ -9,7 +9,7 @@ function startDealTimer(){
   function tick(){var diff=midnight-new Date();if(diff<0)diff=0;var h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);var p=function(n){return String(n).padStart(2,'0');};var hEl=document.getElementById('dt-h'),mEl=document.getElementById('dt-m'),sEl=document.getElementById('dt-s');if(hEl)hEl.textContent=p(h);if(mEl)mEl.textContent=p(m);if(sEl)sEl.textContent=p(s);}
   tick();setInterval(tick,1000);
 }
-startDealTimer();
+if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",startDealTimer);}else{startDealTimer();}
 
 
 /* ================================================
@@ -19,6 +19,8 @@ startDealTimer();
 
 // ---- LOADER ----
 window.addEventListener('load',function(){setTimeout(function(){var l=document.getElementById('loader');if(l)l.classList.add('hide');},700);
+  // Fallback: agar kuch bhi fail ho, 8 seconds mein loader force-hide
+  setTimeout(function(){var l=document.getElementById('loader');if(l)l.classList.add('hide');},8000);
   // Kitchen closed notice for guests
   try{
     var s=JSON.parse(localStorage.getItem('ak_settings'))||{};
@@ -45,6 +47,16 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 /* ---- Firebase (keys: firebase-config.js) ---- */
 var firebaseConfig=window.FIREBASE_CONFIG||{};
 var akFirebaseReady=false;
+
+// FIX: Sync with firebase-config.js akFirebaseReady event
+window.addEventListener('akFirebaseReady',function(){
+  if(!akFirebaseReady){
+    akFirebaseReady=true;
+    tryInitFirebase();
+    try{checkAuthOnLoad();}catch(e){}
+  }
+});
+
 var SHOP_LAT=23.7957,SHOP_LNG=86.4304,MAX_DELIVERY_KM=5;
 var withinDeliveryRadius=false,deliveryRadiusChecked=false;
 
@@ -1768,7 +1780,7 @@ document.addEventListener('keydown',function(e){
     if(document.getElementById('cart-modal').style.display!=='none')closeCartModal();
     if(document.getElementById('auth-overlay').style.display==='flex')skipAuth();
     if(document.getElementById('offer-popup').style.display==='flex')closeOfferPopup();
-    if(document.getElementById('track-modal').classList.contains('open'))closeTrackModal();
+    if(document.getElementById('track-modal')&&document.getElementById('track-modal').classList&&document.getElementById('track-modal').classList.contains('open')&&typeof closeTrackModal==='function')closeTrackModal();
   }
 });
 // Auto-fill address input scroll — keyboard push fix
