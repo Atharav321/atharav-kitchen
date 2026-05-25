@@ -714,54 +714,64 @@ function popupCTA(){
 /* ================================================
    ★ SOCIAL LOGIN (Google + Facebook)
    ================================================ */
+function handleGoogleResult(user){
+  var uid=user.uid;
+  return loadCustomerProfile(uid).then(function(data){
+    if(!data){
+      var customer={
+        id:uid,firebaseUid:uid,
+        name:user.displayName||'Customer',
+        phone:user.phoneNumber||'',
+        email:user.email||'',
+        photoURL:user.photoURL||'',
+        welcomeCode:genWelcomeCode(uid.slice(-4)),
+        welcomeCodeUsed:false,
+        loginMethod:'google',
+        joinedAt:firebase.firestore.FieldValue.serverTimestamp(),
+        createdAt:new Date().toLocaleString('en-IN'),
+        orders:[]
+      };
+      return firebase.firestore().collection('customers').doc(uid).set(customer)
+        .then(function(){return customer;});
+    }
+    return data;
+  }).then(function(customer){
+    if(welcomeAuthTimer){clearTimeout(welcomeAuthTimer);welcomeAuthTimer=null;}
+    currentUser=customer;
+    if(!currentUser.id)currentUser.id=firebase.auth().currentUser.uid;
+    injectCustomerCoupon(currentUser);
+    document.getElementById('auth-overlay').style.display='none';
+    updateNavUser();
+    showToast('Welcome '+(currentUser.name||'')+'! Google se login hua ✅','green');
+    checkUserDeliveryRadius();
+    scheduleOfferPopups();
+    initNewFeatures();
+    if(document.getElementById('fb-name'))document.getElementById('fb-name').value=currentUser.name||'';
+    if(document.getElementById('ord-name'))document.getElementById('ord-name').value=currentUser.name||'';
+  }).catch(function(e){
+    showToast('Google login failed: '+(e.message||'Try again'),'red');
+  });
+}
+
 function loginWithGoogle(){
   if(!akFirebaseReady){showToast('Firebase connected nahi hai.','red');return;}
   var provider=new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({'prompt':'select_account'});
-  firebase.auth().signInWithPopup(provider)
-    .then(function(result){
-      var user=result.user;
-      var uid=user.uid;
-      return loadCustomerProfile(uid).then(function(data){
-        if(!data){
-          var customer={
-            id:uid,firebaseUid:uid,
-            name:user.displayName||'Customer',
-            phone:user.phoneNumber||'',
-            email:user.email||'',
-            photoURL:user.photoURL||'',
-            welcomeCode:genWelcomeCode(uid.slice(-4)),
-            welcomeCodeUsed:false,
-            loginMethod:'google',
-            joinedAt:firebase.firestore.FieldValue.serverTimestamp(),
-            createdAt:new Date().toLocaleString('en-IN'),
-            orders:[]
-          };
-          return firebase.firestore().collection('customers').doc(uid).set(customer)
-            .then(function(){return customer;});
-        }
-        return data;
-      });
-    })
-    .then(function(customer){
-      if(welcomeAuthTimer){clearTimeout(welcomeAuthTimer);welcomeAuthTimer=null;}
-      currentUser=customer;
-      if(!currentUser.id)currentUser.id=firebase.auth().currentUser.uid;
-      injectCustomerCoupon(currentUser);
-      document.getElementById('auth-overlay').style.display='none';
-      updateNavUser();
-      showToast('Welcome '+(currentUser.name||'')+'! Google se login hua ✅','green');
-      checkUserDeliveryRadius();
-      scheduleOfferPopups();
-      initNewFeatures();
-      if(document.getElementById('fb-name'))document.getElementById('fb-name').value=currentUser.name||'';
-      if(document.getElementById('ord-name'))document.getElementById('ord-name').value=currentUser.name||'';
-    })
-    .catch(function(e){
-      if(e.code==='auth/popup-closed-by-user')return;
-      showToast('Google login failed: '+(e.message||'Try again'),'red');
-    });
+  firebase.auth().signInWithRedirect(provider);
 }
+
+// Page load pe redirect result check karo
+window.addEventListener('akFirebaseReady',function(){
+  firebase.auth().getRedirectResult().then(function(result){
+    if(result&&result.user){
+      handleGoogleResult(result.user);
+    }
+  }).catch(function(e){
+    if(e.code&&e.code!=='auth/no-current-user'){
+      showToast('Google login error: '+e.message,'red');
+    }
+  });
+});
 
 function loginWithFacebook(){
   if(!akFirebaseReady){showToast('Firebase connected nahi hai.','red');return;}
