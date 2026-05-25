@@ -5,11 +5,11 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), payment=(), geolocation=(), usb=()
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://maps.googleapis.com https://maps.gstatic.com https://fonts.googleapis.com https://www.googletagmanager.com https://apis.google.com https://www.google.com https://recaptchaenterprise.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://identitytoolkit.googleapis.com https://maps.googleapis.com https://securetoken.googleapis.com wss://firestore.googleapis.com https://www.googleapis.com https://recaptchaenterprise.googleapis.com; frame-src https://www.google.com https://recaptchaenterprise.googleapis.com; object-src 'none'; base-uri 'self'; upgrade-insecure-requests;
-  Cross-Origin-Resource-Policy: same-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://maps.googleapis.com https://maps.gstatic.com https://fonts.googleapis.com https://www.googletagmanager.com https://apis.google.com https://www.google.com https://recaptchaenterprise.googleapis.com https://accounts.google.com https://ssl.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://identitytoolkit.googleapis.com https://maps.googleapis.com https://securetoken.googleapis.com wss://firestore.googleapis.com https://www.googleapis.com https://recaptchaenterprise.googleapis.com https://accounts.google.com https://firebaseinstallations.googleapis.com https://firebase.google.com https://firebaselogging-pa.googleapis.com https://cloudlogging.googleapis.com; frame-src https://www.google.com https://recaptchaenterprise.googleapis.com https://atharav-kitchen-e587b.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; upgrade-insecure-requests;
+  Cross-Origin-Resource-Policy: cross-origin
   Cross-Origin-Opener-Policy: same-origin-allow-popups
 
-# ── IMAGES: 1 saal cache (immutable — filename change hogi update pe) ──
+# ── IMAGES: 1 saal cache ──
 /*.png
   Cache-Control: public, max-age=31536000, immutable
 
@@ -22,7 +22,7 @@
 /*.jpeg
   Cache-Control: public, max-age=31536000, immutable
 
-# ── JS/CSS: versioning nahi hai to 1 din cache — safe balance ──
+# ── JS/CSS ──
 /*.js
   Cache-Control: public, max-age=86400
 
