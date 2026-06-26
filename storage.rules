@@ -1,0 +1,42 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ── ADMIN UID CHECK ──────────────────────────────────────
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid == 'y6dzuDZOunbsi2Xei2U12oZQKHt1';
+    }
+
+    // ── Menu images — public read, SIRF ADMIN write ──────────
+    // FIX: Pehle koi bhi authenticated user likh sakta tha — ab sirf admin
+    match /menu-images/{imageId} {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // ── Offer/Banner images — public read, SIRF ADMIN write ──
+    match /offer-images/{imageId} {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // ── Customer profile pictures — only own user can upload ──
+    match /profile-pics/{userId}/{fileName} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // ── CATCH-ALL: Block everything else ──────────────────────
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
