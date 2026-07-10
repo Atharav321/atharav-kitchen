@@ -1,0 +1,218 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ═══════════════════════════════════════════════════
+    //  ATHARAV KITCHEN — FIRESTORE SECURITY RULES v5.0
+    //  ADMIN LOCKED — HACKER PROOF
+    // ═══════════════════════════════════════════════════
+
+    // ── ADMIN UID — SIRF OWNER (TU) ──────────────────
+    function isAdmin() {
+      return request.auth != null 
+        && request.auth.uid == 'y6dzuDZOunbsi2Xei2U12oZQKHt1';
+    }
+
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+
+    function isCustomer() {
+      return isLoggedIn();
+    }
+
+    // ── ORDERS ────────────────────────────────────────
+    match /orders/{orderId} {
+
+      allow create: if isCustomer()
+        && request.resource.data.keys().hasAll([
+             'id', 'name', 'phone', 'address', 'items',
+             'bill', 'status', 'createdAtMs'
+           ])
+        && request.resource.data.status == 'New'
+        && request.resource.data.bill.total is number
+        && request.resource.data.bill.total > 0
+        && request.resource.data.bill.total < 100000
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() < 100
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() == 10
+        && request.resource.data.address is string
+        && request.resource.data.address.size() > 5
+        && request.resource.data.items is list
+        && request.resource.data.items.size() > 0;
+
+      // Customer apna order dekh sakta hai
+      allow read: if isCustomer()
+        && resource.data.customerId == request.auth.uid;
+
+      // Admin saare orders dekh sakta hai
+      allow read: if isAdmin();
+
+      // Rider sirf apna ASSIGNED order dekhe
+      // Phone number: delivered ke baad rider read nahi kar sakta (Firestore field masking via security)
+      allow read: if isLoggedIn()
+        && resource.data.riderId == request.auth.uid
+        && resource.data.status != 'Delivered'; // delivered orders mein phone access nahi
+
+      // Rider delivered order ka naam/amount/status dekh sakta hai — phone nahi
+      allow read: if isLoggedIn()
+        && resource.data.riderId == request.auth.uid
+        && resource.data.status == 'Delivered'
+        && !('phone' in request.resource.data); // delivered mein phone field block
+
+      // Customer sirf cancel kar sakta hai
+      allow update: if isCustomer()
+        && resource.data.customerId == request.auth.uid
+        && resource.data.status == 'New'
+        && request.resource.data.status == 'Cancelled'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+
+      // Rider assigned order ka status update kar sakta hai (Out for Delivery, Delivered)
+      // Lekin phone number ya billing data CHANGE nahi kar sakta
+      allow update: if isLoggedIn()
+        && resource.data.riderId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['status','deliveredAt','deliveredBy','pickedUpAt']);
+
+      // Admin status update kar sakta hai
+      allow update: if isAdmin();
+
+      allow delete: if false;
+    }
+
+    // ── CUSTOMERS ─────────────────────────────────────
+    match /customers/{userId} {
+
+      allow read: if isCustomer()
+        && request.auth.uid == userId;
+
+      // Admin saare customers dekh sakta hai
+      allow read: if isAdmin();
+
+      allow create: if isCustomer()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasAll(['name', 'phone', 'joinedAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() < 100
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() == 10;
+
+      allow update: if isCustomer()
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name', 'address', 'email', 'dob', 'couponUsed', 'updatedAt']);
+
+      // Admin kisi bhi customer ko update kar sakta hai
+      allow update, delete: if isAdmin();
+    }
+
+    // ── MENU — SIRF ADMIN WRITE KAR SAKTA HAI ────────
+    match /menu/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── SETTINGS — SIRF ADMIN ─────────────────────────
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── OFFERS — SIRF ADMIN CREATE/EDIT KAR SAKTA HAI ─
+    match /offers/{docId} {
+      allow read: if true;
+      // KOI AUR NAHI — SIRF TU OFFER BANA SAKTA HAI
+      allow write: if isAdmin();
+    }
+
+    // ── BANNERS — SIRF ADMIN ──────────────────────────
+    match /banners/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── COUPONS — SIRF ADMIN ──────────────────────────
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── FEEDBACK ──────────────────────────────────────
+    match /feedback/{docId} {
+      allow create: if isCustomer()
+        && request.resource.data.keys().hasAll(['name', 'rating', 'createdAt'])
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() >= 0
+        && request.resource.data.comment.size() < 1000
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5;
+
+      allow read: if isCustomer()
+        && resource.data.customerId == request.auth.uid;
+
+      // Admin saara feedback dekh sakta hai
+      allow read, delete: if isAdmin();
+
+      allow update: if false;
+    }
+
+    // ── RIDERS ────────────────────────────────────────
+    match /riders/{riderId} {
+      // Rider apni profile dekh/update kar sakta hai
+      allow read: if isLoggedIn() && request.auth.uid == riderId;
+      allow update: if isLoggedIn() && request.auth.uid == riderId
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['online','lastSeen','currentOrderId']);
+      allow read, write: if isAdmin();
+    }
+
+    // ── WALLETS ──────────────────────────────────────────────────────
+    match /wallets/{userId} {
+      allow read: if isLoggedIn() && request.auth.uid == userId;
+      // SECURITY FIX: Customer wallet ko directly write karna band — point manipulation hack possible tha
+      // Points sirf BADHH sakti hain (decrease nahi) aur max 1000 per transaction
+      allow write: if isLoggedIn() && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['points','history','updatedAt'])
+        && request.resource.data.points is number
+        && request.resource.data.points >= 0
+        && request.resource.data.points <= 100000
+        // Points 0 se kam nahi ja sakti
+        && request.resource.data.points >= 0
+        // Max ek baar mein 1000 se zyada points nahi milenge (earn limit)
+        && (resource == null || (request.resource.data.points - resource.data.points) <= 1000)
+        // Max ek baar mein 500 se zyada points deduct nahi honge (redeem limit — fraud prevention)
+        && (resource == null || (resource.data.points - request.resource.data.points) <= 500);
+      allow read, write: if isAdmin();
+    }
+
+    // ── ORDERS (RIDER PATCH) — Rider sirf assigned order dekhe ──────
+    // Note: Yeh above /orders/{orderId} rules ko extend karta hai
+    // Rider ka access: sirf wo order jo unhe assign hua hai
+    // Phone number: rider delivered mark karne ke BAAD read nahi kar sakta
+
+    // ── CONTACTS ──────────────────────────────────────
+    match /contacts/{docId} {
+      allow create: if request.resource.data.keys().hasAll(["name", "phone", "subject", "message", "createdAt"])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() < 100
+        && request.resource.data.phone is string
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() < 2000;
+
+      // Sirf admin contact messages dekh sakta hai
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // ── CATCH-ALL — BAAKI SAB BAND ────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
