@@ -1,0 +1,52 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), payment=(), geolocation=(self), usb=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://maps.googleapis.com https://maps.gstatic.com https://fonts.googleapis.com https://www.googletagmanager.com https://apis.google.com https://www.google.com https://recaptchaenterprise.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://identitytoolkit.googleapis.com https://maps.googleapis.com https://securetoken.googleapis.com wss://firestore.googleapis.com https://www.googleapis.com https://recaptchaenterprise.googleapis.com https://accounts.google.com https://lh3.googleusercontent.com https://nominatim.openstreetmap.org; frame-src https://www.google.com https://recaptchaenterprise.googleapis.com https://accounts.google.com https://atharav-kitchen-e587b.firebaseapp.com https://www.youtube.com https://www.youtube-nocookie.com; media-src 'self' data: https: blob:; object-src 'none'; base-uri 'self'; upgrade-insecure-requests;
+  Cross-Origin-Resource-Policy: same-origin
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+
+# ── IMAGES: 1 saal cache (immutable — filename change hogi update pe) ──
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+# ── JS/CSS: versioning nahi hai to 1 din cache — safe balance ──
+/*.js
+  Cache-Control: public, max-age=86400
+
+/*.css
+  Cache-Control: public, max-age=86400
+
+# ── HTML: hamesha fresh ──
+/*.html
+  Cache-Control: no-cache, must-revalidate
+
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/admin.html
+  X-Robots-Tag: noindex, nofollow
+  X-Frame-Options: DENY
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/rider.html
+  X-Robots-Tag: noindex, nofollow
+  X-Frame-Options: DENY
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/start.html
+  X-Robots-Tag: noindex, nofollow
+  X-Frame-Options: DENY
+  Cache-Control: no-cache, no-store, must-revalidate
