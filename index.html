@@ -254,6 +254,11 @@
           <label>Email (Optional)</label>
           <input type="email" id="reg-email" placeholder="your@email.com" autocomplete="email">
         </div>
+        <div class="af-group">
+          <label>Referral Code (Optional)</label>
+          <input type="text" id="reg-referral" placeholder="e.g. AK1234XYZ" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+          <div class="af-hint">Kisi dost ne refer kiya? Code daalo — dono ko ₹50 milega! 🎁</div>
+        </div>
         <!-- Invisible reCAPTCHA container -->
         <div id="recaptcha-reg"></div>
         <div class="auth-terms">By registering, you agree to receive offers & updates from <span>Atharav Kitchen</span></div>
@@ -729,6 +734,20 @@
   <div class="sec-wrap">
     <h2 class="sec-ttl">Our Menu — Cloud Kitchen Dhanbad</h2>
     <p class="sec-sub">Freshly prepared Indo-Western, Chinese & Indian dishes delivered to your door in Dhanbad</p>
+
+    <!-- RECOMMENDED / BESTSELLERS RAIL -->
+    <div id="menu-reco-wrap" style="display:none;margin-bottom:2rem;">
+      <div class="menu-reco-hdr">
+        <span class="menu-reco-tag">🔥 Bestsellers</span>
+        <h3>Recommended For You</h3>
+      </div>
+      <div class="menu-reco-rail" id="menu-reco-rail"></div>
+    </div>
+
+    <div class="menu-fullhdr">
+      <span class="menu-fullhdr-tag">📋 Full Menu</span>
+      <h3>Browse By Category</h3>
+    </div>
     <!-- SEARCH BAR -->
     <div class="menu-search-wrap">
       <span class="menu-search-icon">🔍</span>
@@ -748,6 +767,18 @@
       <div class="sk-card"></div><div class="sk-card"></div><div class="sk-card"></div>
     </div>
     <div class="menu-grid" id="menu-grid"></div>
+  </div>
+</section>
+
+<!-- KITCHEN GALLERY (Hygiene trust section) -->
+<section id="kitchen-gallery-section" style="display:none;background:var(--warm-white,#FFF8F0);padding:3.5rem 1.5rem;">
+  <div class="sec-wrap" style="max-width:1100px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:#FFF0E0;border:2px solid rgba(255,107,0,0.2);color:#FF6B00;padding:6px 16px;border-radius:50px;font-size:0.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:0.8rem;">🧼 Hygiene First</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:900;color:#2D1A00;margin-bottom:0.4rem;">Hamari Kitchen</h2>
+      <p style="color:#A08060;font-size:0.88rem;">Aapka khana kahan aur kaise banta hai — khud dekh lijiye</p>
+    </div>
+    <div id="kitchen-gallery-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;"></div>
   </div>
 </section>
 
@@ -896,54 +927,76 @@
   </div>
 </section>
 
-<!-- FAQ SECTION (HTML visible + schema already in head) -->
-<section id="faq" style="background:#FFF8F0;padding:3.5rem 1.5rem;">
-  <div class="sec-wrap" style="max-width:860px;margin:0 auto;">
-    <div style="text-align:center;margin-bottom:2rem;">
-      <div style="display:inline-flex;align-items:center;gap:8px;background:#FFF0E0;border:2px solid rgba(255,107,0,0.2);color:#FF6B00;padding:6px 16px;border-radius:50px;font-size:0.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:0.8rem;">❓ FAQ</div>
-      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:900;color:#2D1A00;margin-bottom:0.4rem;">Aksar Pooche Jaane Wale Sawal</h2>
-      <p style="color:#A08060;font-size:0.88rem;">Atharav Kitchen ke baare mein common questions ke jawab</p>
+<!-- FAQ / HELP CENTER SECTION (HTML visible + schema already in head) -->
+<section id="faq" class="help-center">
+  <div class="sec-wrap" style="max-width:980px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:2.4rem;">
+      <div class="help-center-tag">💬 Help Center</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:900;color:#2D1A00;margin-bottom:0.5rem;">Aksar Poochhe Jaane Wale Sawal</h2>
+      <p style="color:#A08060;font-size:0.92rem;font-weight:600;">Atharav Kitchen ke baare mein sabse common sawaalon ke seedhe jawab</p>
     </div>
-    <div class="faq-list">
+    <div class="faq-grid">
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">
-          <span>📍 Atharav Kitchen Dhanbad mein kahan hai?</span>
+          <span class="faq-icon">📍</span>
+          <span class="faq-q-txt">Atharav Kitchen Dhanbad mein kahan hai?</span>
           <span class="faq-arrow">▼</span>
         </button>
         <div class="faq-a">1st Floor, Shastri Nagar, Jain Mandir Road, Near Saroj Apartment, Bank More, Dhanbad, Jharkhand – 826001. <a href="tel:+917903567007">+91 79035 67007</a></div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">
-          <span>💰 Delivery charge kitna hai?</span>
+          <span class="faq-icon">💰</span>
+          <span class="faq-q-txt">Delivery charge kitna hai?</span>
           <span class="faq-arrow">▼</span>
         </button>
         <div class="faq-a">Delivery charge sirf ₹30 hai. <strong>₹399 ya usse zyada ke order pe FREE delivery</strong> milti hai Dhanbad mein!</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">
-          <span>⏰ Atharav Kitchen kab open rehta hai?</span>
+          <span class="faq-icon">⏰</span>
+          <span class="faq-q-txt">Atharav Kitchen kab open rehta hai?</span>
           <span class="faq-arrow">▼</span>
         </button>
         <div class="faq-a">Hum <strong>daily 11:00 AM se 3:00 AM</strong> tak open rehte hain — Monday se Sunday, saat din hafta!</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">
-          <span>📱 Online order kaise kare?</span>
+          <span class="faq-icon">📱</span>
+          <span class="faq-q-txt">Online order kaise kare?</span>
           <span class="faq-arrow">▼</span>
         </button>
         <div class="faq-a">Aap <strong>Zomato</strong>, <strong>Swiggy</strong> ya seedha <strong>WhatsApp (+91 79035 67007)</strong> pe order kar sakte hain. Is website se bhi cart add karke WhatsApp pe order bhej sakte hain!</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">
-          <span>🍽️ Kya kya milta hai menu mein?</span>
+          <span class="faq-icon">🍽️</span>
+          <span class="faq-q-txt">Kya kya milta hai menu mein?</span>
           <span class="faq-arrow">▼</span>
         </button>
         <div class="faq-a">Atharav Kitchen mein <strong>Indo-Western</strong> (Burgers, Wraps, Sandwiches), <strong>Chinese</strong> (Noodles, Fried Rice, Momos, Chilli Chicken), <strong>Indian</strong> (Butter Chicken, Dal Makhani, Paneer) aur <strong>Drinks</strong> milte hain!</div>
       </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span class="faq-icon">🚴</span>
+          <span class="faq-q-txt">Order kitni der mein pahunchta hai?</span>
+          <span class="faq-arrow">▼</span>
+        </button>
+        <div class="faq-a">Zyadatar orders <strong>30–45 minutes</strong> mein deliver ho jaate hain, aapke Dhanbad ke location par depend karta hai. Live tracking bhi milti hai order karne ke baad!</div>
+      </div>
+    </div>
+    <div class="faq-cta">
+      <div class="faq-cta-txt">
+        <strong>Aur koi sawal hai?</strong>
+        <span>Humein seedha WhatsApp ya call pe pooch lo — hum yahin hain!</span>
+      </div>
+      <div class="faq-cta-btns">
+        <a href="https://wa.me/917903567007" target="_blank" rel="noopener" class="faq-cta-btn faq-cta-wa">💬 WhatsApp Karo</a>
+        <a href="tel:+917903567007" class="faq-cta-btn faq-cta-call">📞 Call Karo</a>
+      </div>
     </div>
   </div>
 </section>
-
 <!-- OFFERS -->
 <section id="offers">
   <div class="sec-wrap">
@@ -1138,6 +1191,7 @@
       <!-- Step 1: Items -->
       <div id="cart-step-1">
         <div id="cart-items-list"></div>
+        <div id="cart-upsell-box" style="margin-top:0.8rem;"></div>
         <div style="background:var(--cream);border-radius:12px;padding:12px 16px;margin-top:1rem;display:flex;justify-content:space-between;font-size:0.84rem;">
           <span style="color:var(--text-mid);font-weight:700;">Subtotal</span><span style="font-weight:900;color:var(--deep-brown);" id="s1-subtotal">₹0</span>
         </div>
@@ -1242,6 +1296,35 @@
 <!-- ============================================================
      FIX 4: LIVE ORDER TRACKING MODAL (customer side)
      ============================================================ -->
+<!-- ITEM DETAIL POPUP -->
+<div id="item-detail-modal" style="display:none;position:fixed;inset:0;background:rgba(45,26,0,0.75);backdrop-filter:blur(8px);z-index:6050;align-items:flex-end;justify-content:center;padding:0;" onclick="if(event.target===this)closeItemDetail()">
+  <div style="background:#fff;width:100%;max-width:480px;border-radius:24px 24px 0 0;max-height:92vh;overflow-y:auto;position:relative;">
+    <button onclick="closeItemDetail()" style="position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.5);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:1.2rem;cursor:pointer;z-index:2;">×</button>
+    <div id="id-img-wrap" style="width:100%;height:230px;background:linear-gradient(135deg,var(--saffron-light,#FFF0E0),#FFD9B0);position:relative;"></div>
+    <div style="padding:1.4rem;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div id="id-veg-icon" class="vi v"></div>
+        <span id="id-bestseller-tag" style="display:none;background:linear-gradient(135deg,#FF6B00,#FF8C00);color:#fff;font-size:0.6rem;font-weight:900;padding:4px 10px;border-radius:50px;letter-spacing:0.5px;text-transform:uppercase;">🔥 Bestseller</span>
+      </div>
+      <h2 id="id-name" style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:800;color:#2D1A00;margin-bottom:6px;">Item Name</h2>
+      <p id="id-desc" style="font-size:0.88rem;color:#5C3A1E;line-height:1.6;margin-bottom:1rem;">Description</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">
+        <span id="id-price" style="font-family:'Playfair Display',serif;font-weight:900;color:var(--saffron);font-size:1.5rem;">₹0</span>
+        <div style="display:flex;align-items:center;gap:12px;background:#FFF0E0;border-radius:12px;padding:8px 14px;">
+          <button onclick="changeDetailQty(-1)" style="background:transparent;border:none;color:#FF6B00;font-size:1.2rem;font-weight:900;cursor:pointer;">−</button>
+          <span id="id-qty-display" style="font-weight:800;min-width:16px;text-align:center;">1</span>
+          <button onclick="changeDetailQty(1)" style="background:transparent;border:none;color:#FF6B00;font-size:1.2rem;font-weight:900;cursor:pointer;">+</button>
+        </div>
+      </div>
+      <button onclick="addFromItemDetail()" style="width:100%;padding:14px;background:linear-gradient(135deg,#FF6B00,#FF8C00);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95rem;cursor:pointer;margin-bottom:1.4rem;">🛒 Add to Cart</button>
+      <div id="id-also-liked-wrap" style="display:none;">
+        <h3 style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:800;color:#2D1A00;margin-bottom:0.7rem;">🍽️ Customers Also Liked</h3>
+        <div id="id-also-liked-rail" style="display:flex;gap:0.7rem;overflow-x:auto;padding-bottom:0.4rem;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="track-modal" style="display:none;position:fixed;inset:0;background:rgba(45,26,0,0.75);backdrop-filter:blur(8px);z-index:6100;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;">
   <div style="max-width:480px;width:100%;background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(45,26,0,0.4);margin:2rem auto;">
     <div style="background:linear-gradient(135deg,#FF6B00,#FF8C00);padding:1.2rem 1.5rem;display:flex;align-items:center;justify-content:space-between;">
@@ -1273,6 +1356,8 @@
         <div style="font-size:2rem;font-weight:900;color:#FF6B00;margin:4px 0;" id="track-eta">30-45 min</div>
         <div style="font-size:0.72rem;color:#A08060;" id="track-eta-sub">Order ki preparation shuru ho gayi hai</div>
       </div>
+      <!-- Push Notification Opt-in -->
+      <button id="track-notify-btn" onclick="enablePushForCurrentOrder()" style="width:100%;margin-top:0.8rem;padding:11px;background:#FFF0E0;border:2px dashed var(--saffron);color:#FF6B00;border-radius:12px;font-weight:800;font-size:0.8rem;cursor:pointer;">🔔 Order updates ke liye notification allow karo</button>
       <!-- Contact Kitchen -->
       <div style="display:flex;gap:0.8rem;margin-top:1.2rem;">
         <a href="https://wa.me/917903567007" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#25D366;color:#fff;padding:11px;border-radius:12px;font-weight:800;font-size:0.82rem;text-decoration:none;">💬 WhatsApp Kitchen</a>

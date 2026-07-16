@@ -4,6 +4,40 @@
 //  FIX: WebP extensions, proper cache cleanup
 // ═══════════════════════════════════════════════════════════════
 
+// --- PUSH NOTIFICATIONS (Firebase Cloud Messaging, background) ---
+// Isi service worker mein FCM background handler add kiya hai (alag se
+// firebase-messaging-sw.js file banane ki zaroorat nahi).
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
+try {
+  firebase.initializeApp({
+    apiKey:            'AIzaSyCFUKTAZQJ4XnJ7RDK50k14gMQOeDW5-2g',
+    authDomain:        'atharav-kitchen-e587b.firebaseapp.com',
+    projectId:         'atharav-kitchen-e587b',
+    storageBucket:     'atharav-kitchen-e587b.firebasestorage.app',
+    messagingSenderId: '405541916369',
+    appId:             '1:405541916369:web:b0ffc50a3a7aabc005ac',
+  });
+  var akMessagingSw = firebase.messaging();
+  akMessagingSw.onBackgroundMessage(function(payload) {
+    var title = (payload.notification && payload.notification.title) || 'Atharav Kitchen';
+    var body = (payload.notification && payload.notification.body) || '';
+    self.registration.showNotification(title, {
+      body: body,
+      icon: 'icon-192.webp',
+      badge: 'icon-192.webp',
+      data: payload.data || {}
+    });
+  });
+} catch (e) {
+  console.warn('[SW] Firebase Messaging init skipped:', e);
+}
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  event.waitUntil(clients.openWindow('/'));
+});
+
 const CACHE_NAME = 'atharav-v7';
 const STATIC_CACHE = 'atharav-static-v6';
 const DYNAMIC_CACHE = 'atharav-dynamic-v6';

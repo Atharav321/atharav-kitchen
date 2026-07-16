@@ -5,7 +5,7 @@ service firebase.storage {
     // ── ADMIN UID CHECK ──────────────────────────────────────
     function isAdmin() {
       return request.auth != null
-        && request.auth.uid == 'y6dzuDZOunbsi2Xei2U12oZQKHt1';
+        && request.auth.token.email == 'chotugupta7395@gmail.com';
     }
 
     // ── Menu images — public read, SIRF ADMIN write ──────────
@@ -19,6 +19,23 @@ service firebase.storage {
 
     // ── Offer/Banner images — public read, SIRF ADMIN write ──
     match /offer-images/{imageId} {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // ── Social media promo banners — public read (Meta ko fetch karna hota
+    //    hai), SIRF ADMIN write. Facebook/Instagram auto-post feature ke liye.
+    match /social-posts/{imageId} {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // ── Kitchen/hygiene gallery photos — public read, SIRF ADMIN write ──
+    match /kitchen-gallery/{imageId} {
       allow read: if true;
       allow write: if isAdmin()
         && request.resource.size < 5 * 1024 * 1024
