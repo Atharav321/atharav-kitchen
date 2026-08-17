@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Homepage — highest priority -->
+  <url>
+    <loc>https://atharav-kitchen.pages.dev/</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://atharav-kitchen.pages.dev/logo_png.png</image:loc>
+      <image:title>Atharav Kitchen — Best Cloud Kitchen in Dhanbad</image:title>
+    </image:image>
+  </url>
+
+  <!-- Blog listing -->
+  <url>
+    <loc>https://atharav-kitchen.pages.dev/blog.html</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog posts — high value SEO pages -->
+  <url>
+    <loc>https://atharav-kitchen.pages.dev/blog-best-cloud-kitchen-dhanbad.html</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://atharav-kitchen.pages.dev/blog-order-food-online-dhanbad.html</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://atharav-kitchen.pages.dev/blog-indo-western-food-dhanbad.html</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Legal pages -->
+  <url>
+    <loc>https://atharav-kitchen.pages.dev/privacy-policy.html</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://atharav-kitchen.pages.dev/terms.html</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+</urlset>

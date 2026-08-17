@@ -1,0 +1,59 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), payment=(), geolocation=(self), usb=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  # CSP NOTE: style-src keeps 'unsafe-inline' intentionally.
+  # Reason: 358 inline style attrs in HTML + 300+ JS-generated styles (admin kpiCards).
+  # Cloudflare Pages = static hosting = no server-side nonce injection.
+  # script-src-attr 'unsafe-inline' added: onclick="" handlers throughout HTML need this
+  # to function. script-src itself (for <script> tags) still has NO unsafe-inline —
+  # that remains the real XSS protection against injected <script> tags.
+  # Future fix: migrate onclick="" to addEventListener + CF Worker nonce injection (tracked in docs/ARCHITECTURE.md).
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://browser.sentry-cdn.com https://www.gstatic.com https://maps.googleapis.com https://maps.gstatic.com https://fonts.googleapis.com https://www.googletagmanager.com https://apis.google.com https://www.google.com https://recaptchaenterprise.googleapis.com; script-src-attr 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-attr 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://identitytoolkit.googleapis.com https://maps.googleapis.com https://securetoken.googleapis.com wss://firestore.googleapis.com https://www.googleapis.com https://recaptchaenterprise.googleapis.com https://www.google.com https://accounts.google.com https://lh3.googleusercontent.com https://nominatim.openstreetmap.org https://*.workers.dev https://fcm.googleapis.com https://fcmregistrations.googleapis.com https://graph.facebook.com https://www.google-analytics.com https://analyticsdata.googleapis.com https://searchconsole.googleapis.com https://analytics.google.com https://region1.google-analytics.com https://*.sentry.io https://o0.ingest.sentry.io; frame-src https://www.google.com https://recaptchaenterprise.googleapis.com https://accounts.google.com https://atharav-kitchen-e587b.firebaseapp.com https://www.youtube.com https://www.youtube-nocookie.com; media-src 'self' data: https: blob:; object-src 'none'; base-uri 'self'; upgrade-insecure-requests;
+  Cross-Origin-Resource-Policy: same-origin
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+
+# ── IMAGES: 1 year cache (immutable — filename changes on update) ──
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+# ── JS/CSS: 1 week cache (versioned via ?v=N query param) ──
+/*.js
+  Cache-Control: public, max-age=604800
+
+/*.css
+  Cache-Control: public, max-age=604800
+
+# ── HTML: always fresh ──
+/*.html
+  Cache-Control: no-cache, must-revalidate
+
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/admin.html
+  X-Robots-Tag: noindex, nofollow
+  X-Frame-Options: DENY
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/rider.html
+  X-Robots-Tag: noindex, nofollow
+  X-Frame-Options: DENY
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/start.html
+  X-Robots-Tag: noindex, nofollow
+  X-Frame-Options: DENY
+  Cache-Control: no-cache, no-store, must-revalidate

@@ -1,0 +1,266 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ═══════════════════════════════════════════════════
+    //  ATHARAV KITCHEN — FIRESTORE SECURITY RULES v6.0
+    //  FIXED: Guest order create + read, Anonymous auth
+    // ═══════════════════════════════════════════════════
+
+    // ── ADMIN UID — SIRF OWNER (TU) ──────────────────
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'chotugupta7395@gmail.com';
+    }
+
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+
+    // Real registered customer (phone OTP / Google / Facebook)
+    // Anonymous session wale isCustomer nahi hote — sirf order create kar sakte hain
+    function isRealCustomer() {
+      return request.auth != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+
+    // FIX: isCustomer ab sirf real logged-in users ke liye hai (registered customers)
+    // Guest order create ke liye alag rule hai neeche
+    function isCustomer() {
+      return isRealCustomer();
+    }
+
+    // ── ORDERS ────────────────────────────────────────
+    match /orders/{orderId} {
+
+      // FIX v6.0: Guest (anonymous auth) + registered customers dono order create kar sakte hain
+      // Pehle sirf isCustomer() tha jo anonymous ko block karta tha
+      allow create: if isLoggedIn()
+        && request.resource.data.keys().hasAll([
+             'id', 'name', 'phone', 'address', 'items',
+             'bill', 'status', 'createdAtMs'
+           ])
+        && request.resource.data.status == 'New'
+        && request.resource.data.bill.total is number
+        && request.resource.data.bill.total > 0
+        && request.resource.data.bill.total < 100000
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() < 100
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() == 10
+        && request.resource.data.address is string
+        && request.resource.data.address.size() > 5
+        && request.resource.data.items is map
+        && request.resource.data.items.size() > 0;
+
+      // Registered customer apna order dekh sakta hai (uid se match)
+      allow read: if isRealCustomer()
+        && resource.data.customerId == request.auth.uid;
+
+      // FIX v6.0: Guest apna order dekh sakta hai — order ID se (tracking ke liye)
+      // Anonymous uid se bhi match karo (jab anonymous session wala order deta hai)
+      allow read: if isLoggedIn()
+        && request.auth.token.firebase.sign_in_provider == 'anonymous'
+        && resource.data.customerId == request.auth.uid;
+
+      // Admin saare orders dekh sakta hai
+      allow read: if isAdmin();
+
+      // Rider apna ASSIGNED order dekh sakta hai (kisi bhi status mein — history/list ke liye zaroori).
+      // FIX v6.1: pehle ek alag "Delivered ke baad phone nahi" rule tha jo request.resource.data
+      // (sirf writes pe valid) use karta tha — reads pe wo hamesha empty tha, aur 'phone' field
+      // create rule mein required hai, so wo rule KABHI match nahi hota — rider ka delivered-order
+      // read hamesha deny ho jaata, jisse realtime order-list listener (onSnapshot) tootta.
+      // Firestore rules field-level redaction support nahi karte (sirf poora doc allow/deny),
+      // isliye phone-hide already client-side handle hota hai (rider.js → phoneHidden = isDone).
+      allow read: if isLoggedIn()
+        && resource.data.riderId == request.auth.uid;
+
+      // Registered customer sirf cancel kar sakta hai
+      allow update: if isRealCustomer()
+        && resource.data.customerId == request.auth.uid
+        && resource.data.status == 'New'
+        && request.resource.data.status == 'Cancelled'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+
+      // Customer apne order mein sirf FCM token update kar sakta hai
+      allow update: if isLoggedIn()
+        && resource.data.customerId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fcmToken']);
+
+      // Rider assigned order ka status update kar sakta hai
+      allow update: if isLoggedIn()
+        && resource.data.riderId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['status','deliveredAt','deliveredBy','pickedUpAt']);
+
+      // Admin status update kar sakta hai
+      allow update: if isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+    // ── CUSTOMERS ─────────────────────────────────────
+    match /customers/{userId} {
+
+      allow read: if isRealCustomer()
+        && request.auth.uid == userId;
+
+      // Admin saare customers dekh sakta hai
+      allow read: if isAdmin();
+
+      allow create: if isRealCustomer()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasAll(['name', 'phone', 'joinedAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() < 100
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() == 10;
+
+      allow update: if isRealCustomer()
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name', 'address', 'email', 'dob', 'couponUsed', 'updatedAt', 'orders', 'lastOrder', 'welcomeCodeUsed', 'referralCode']);
+
+      // Admin kisi bhi customer ko update kar sakta hai
+      allow update, delete: if isAdmin();
+    }
+
+    // ── MENU — SIRF ADMIN WRITE KAR SAKTA HAI ────────
+    match /menu/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── SETTINGS — SIRF ADMIN ─────────────────────────
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── AI AGENT REPORTS ──────────────────────────────
+    match /agent_reports/{docId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // ── BLOG DRAFTS ───────────────────────────────────
+    match /blog_drafts/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── OFFERS — SIRF ADMIN ───────────────────────────
+    match /offers/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── BANNERS — SIRF ADMIN ──────────────────────────
+    match /banners/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── COUPONS — SIRF ADMIN ──────────────────────────
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── FEEDBACK ──────────────────────────────────────
+    match /feedback/{docId} {
+      // FIX v6.0: Anonymous guest bhi feedback de sakta hai
+      allow create: if isLoggedIn()
+        && request.resource.data.keys().hasAll(['name', 'rating', 'createdAt'])
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() >= 0
+        && request.resource.data.comment.size() < 1000
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5;
+
+      allow read: if isRealCustomer()
+        && resource.data.customerId == request.auth.uid;
+
+      // Admin saara feedback dekh sakta hai
+      allow read, delete: if isAdmin();
+
+      allow update: if false;
+    }
+
+    // ── RIDERS ────────────────────────────────────────
+    match /riders/{riderId} {
+      allow read: if isLoggedIn() && request.auth.uid == riderId;
+      allow update: if isLoggedIn() && request.auth.uid == riderId
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['online','lastSeen','currentOrderId']);
+      allow read, write: if isAdmin();
+    }
+
+    // ── REFERRAL CLAIMS ───────────────────────────────
+    match /referral_claims/{claimId} {
+      allow create: if isRealCustomer()
+        && request.resource.data.newCustomerId == request.auth.uid
+        && request.resource.data.status == 'pending';
+      allow read, update: if isAdmin();
+    }
+
+    // ── REFERRAL STATS ────────────────────────────────
+    match /referral_stats/{userId} {
+      allow read: if isLoggedIn() && request.auth.uid == userId;
+      allow read, write: if isAdmin();
+    }
+
+    // ── WALLETS ───────────────────────────────────────
+    match /wallets/{userId} {
+      allow read: if isLoggedIn() && request.auth.uid == userId;
+      allow write: if isLoggedIn() && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['points','history','updatedAt'])
+        && request.resource.data.points is number
+        && request.resource.data.points >= 0
+        && request.resource.data.points <= 100000
+        && (resource == null || (request.resource.data.points - resource.data.points) <= 1000)
+        && (resource == null || (resource.data.points - request.resource.data.points) <= 500);
+      allow read, write: if isAdmin();
+    }
+
+    // ── CONTACTS ──────────────────────────────────────
+    match /contacts/{docId} {
+      allow create: if request.resource.data.keys().hasAll(["name", "phone", "subject", "message", "createdAt"])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() < 100
+        && request.resource.data.phone is string
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() < 2000;
+
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // ── ERROR LOGS ────────────────────────────────────
+    match /error_logs/{logId} {
+      allow create: if request.resource.data.keys().hasOnly(['ts','msg','stack','page','ua'])
+                    && request.resource.data.msg is string
+                    && request.resource.data.msg.size() < 1000;
+      allow read, update, delete: if false;
+    }
+
+    // ── COUPON USAGE (server-side validation tracking) ────────────
+    // Worker REST API se write hota hai (unauthenticated REST, controlled by Worker auth logic)
+    // Customer apna usage dekh sakta hai; admin sab dekh sakta hai
+    match /coupon_usage/{usageId} {
+      allow read: if isAdmin() || (isRealCustomer() && usageId.matches(request.auth.uid + '.*'));
+      allow write: if isAdmin();
+      // Worker unauthenticated REST se write karta hai — Firestore rules bypass hoti hain
+      // kyunki Worker service account use karta hai (ya unauthenticated REST allow hai yahan)
+    }
+
+    // ── CATCH-ALL — BAAKI SAB BAND ────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

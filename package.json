@@ -1,0 +1,28 @@
+{
+  "name": "atharav-kitchen-v15-modular",
+  "version": "1.18.0",
+  "description": "Cloud kitchen ordering platform: customer site + admin panel + rider app. Plain HTML/CSS/JS (no bundler) on Firebase + Cloudflare Pages.",
+  "main": "sw.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "lint": "eslint js/ workers/",
+    "lint:fix": "eslint js/ workers/ --fix",
+    "format": "prettier --write 'js/**/*.js' 'workers/**/*.js' 'css/**/*.css'",
+    "format:check": "prettier --check 'js/**/*.js' 'workers/**/*.js' 'css/**/*.css'",
+    "version": "node build/version-assets.js",
+    "test": "npm run lint && npm run format:check",
+    "test:ci": "npm run lint && npm run format:check && echo '\u2705 All checks passed'",
+    "precommit": "npm run lint && npm run format:check",
+    "load-test": "k6 run build/load-test.js",
+    "load-test:smoke": "k6 run --vus 5 --duration 30s build/load-test.js"
+  },
+  "keywords": [],
+  "author": "Atharav Kitchen (Dhanbad)",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "prettier": "^3.9.6"
+  }
+}

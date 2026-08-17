@@ -1,0 +1,3 @@
+node_modules/
+build/VERSION
+*.min.js

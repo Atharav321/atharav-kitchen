@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="js/core/security.js?v=26" defer></script>
+  <script src="js/core/sentry.js?v=26" defer></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1B4332">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AK Rider">
+<title>Atharav Kitchen — Rider App</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/rider.css?v=26">
+</head>
+<body>
+
+<!-- ======= LOGIN ======= -->
+<div id="login-screen">
+  <div class="login-logo">🛵</div>
+  <div class="login-brand">AK RIDER</div>
+  <div class="login-sub">Atharav Kitchen · Delivery Partner Portal</div>
+  <div class="login-card">
+    <h2>🔑 Rider Login</h2>
+    <div class="lf">
+      <label>Select Your Name</label>
+      <select id="l-name">
+        <option value="">— Select Rider —</option>
+      </select>
+    </div>
+    <div class="lf">
+      <label>PIN (4-digit)</label>
+      <input id="l-pin" type="password" maxlength="4" placeholder="••••" inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" onclick="doLogin()">🚀 Start Delivery Shift</button>
+    <div class="login-err" id="login-err">❌ Wrong PIN! Contact admin.</div>
+    <div class="login-hint">Ask admin to add you as a rider · Default PIN: 1234</div>
+  </div>
+</div>
+
+<!-- ======= MAIN APP ======= -->
+<div id="app-screen">
+
+  <!-- Connection warning bar -->
+  <div class="conn-bar" id="conn-bar">⚠️ Auto-refreshing orders every 10 seconds</div>
+
+  <!-- Header -->
+  <div class="app-header">
+    <div class="ah-left">
+      <div class="ah-avatar" id="ah-avatar">R</div>
+      <div>
+        <div class="ah-name" id="ah-name">Rider</div>
+        <div class="ah-status" id="ah-shift">Tap "Go Online" to start</div>
+      </div>
+    </div>
+    <div class="ah-right">
+      <button class="online-toggle" onclick="toggleOnline()" id="online-btn">
+        <div class="online-dot" id="online-dot"></div>
+        <span id="online-lbl">Go Online</span>
+      </button>
+      <button class="notif-btn" onclick="switchTab('orders')">
+        🔔
+        <span class="notif-badge" id="notif-badge">0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+
+    <!-- ORDERS TAB -->
+    <div class="tab-page active" id="tab-orders">
+      <div class="orders-filter" id="orders-filter">
+        <div class="filter-chip active" onclick="filterOrders('all',this)">All</div>
+        <div class="filter-chip" onclick="filterOrders('New',this)">🔴 New</div>
+        <div class="filter-chip" onclick="filterOrders('Confirmed',this)">🟡 Confirmed</div>
+        <div class="filter-chip" onclick="filterOrders('Preparing',this)">👨‍🍳 Preparing</div>
+        <div class="filter-chip" onclick="filterOrders('Out for Delivery',this)">🛵 On Way</div>
+        <div class="filter-chip" onclick="filterOrders('Delivered',this)">✅ Done</div>
+      </div>
+      <div id="orders-list"></div>
+      <div class="scroll-pad"></div>
+    </div>
+
+    <!-- MAP TAB -->
+    <div class="tab-page" id="tab-map">
+      <div class="map-tab-inner">
+        <div id="rider-map"></div>
+        <div class="map-overlay-card" id="map-overlay-card">
+          <div class="moc-label">📍 Delivering to:</div>
+          <div class="moc-addr" id="moc-addr">—</div>
+          <div class="moc-btns">
+            <button class="moc-btn-nav" id="moc-btn-nav">🗺️ Open Google Maps</button>
+            <button class="moc-btn-close" onclick="document.getElementById('map-overlay-card').classList.remove('show')">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EARNINGS TAB -->
+    <div class="tab-page" id="tab-earnings">
+      <div class="earn-hero">
+        <div class="eh-lbl">Today's Earnings</div>
+        <div class="eh-amount" id="earn-today">₹0</div>
+        <div class="eh-sub" id="earn-sub">0 deliveries · Keep going! 🚀</div>
+      </div>
+      <div class="earn-grid">
+        <div class="earn-card">
+          <div class="ec-icon">📦</div>
+          <div class="ec-num" id="ec-total">0</div>
+          <div class="ec-lbl">Total Delivered</div>
+        </div>
+        <div class="earn-card">
+          <div class="ec-icon">💰</div>
+          <div class="ec-num" id="ec-perpay">₹30</div>
+          <div class="ec-lbl">Per Delivery</div>
+        </div>
+        <div class="earn-card">
+          <div class="ec-icon">💵</div>
+          <div class="ec-num" id="ec-cod">₹0</div>
+          <div class="ec-lbl">COD Collected</div>
+        </div>
+        <div class="earn-card">
+          <div class="ec-icon">📱</div>
+          <div class="ec-num" id="ec-upi">₹0</div>
+          <div class="ec-lbl">UPI Orders</div>
+        </div>
+      </div>
+      <div class="earn-section-title">📋 Delivery History Today</div>
+      <div id="earn-history"><div style="color:var(--text3);font-size:0.82rem;text-align:center;padding:1rem;">No deliveries yet today.</div></div>
+      <div class="scroll-pad"></div>
+    </div>
+
+    <!-- PROFILE TAB -->
+    <div class="tab-page" id="tab-profile">
+      <div class="profile-hero">
+        <div class="ph-avatar" id="ph-avatar">🛵</div>
+        <div class="ph-name" id="ph-name">Rider Name</div>
+        <div class="ph-id" id="ph-id">AK-RIDER</div>
+        <div class="ph-rating" id="ph-rating">⭐⭐⭐⭐⭐ 5.0</div>
+      </div>
+      <div class="profile-section">
+        <h3>📊 Shift Stats</h3>
+        <div class="ps-row"><span class="ps-label">Status</span><span class="ps-val" id="ps-status" style="color:#888;">Offline</span></div>
+        <div class="ps-row"><span class="ps-label">Shift Started</span><span class="ps-val" id="ps-shift">—</span></div>
+        <div class="ps-row"><span class="ps-label">Deliveries Today</span><span class="ps-val" id="ps-del">0</span></div>
+        <div class="ps-row"><span class="ps-label">Earnings Today</span><span class="ps-val" id="ps-earn" style="color:var(--gold);">₹0</span></div>
+        <div class="ps-row"><span class="ps-label">Vehicle</span><span class="ps-val" id="ps-vehicle">—</span></div>
+        <div class="ps-row"><span class="ps-label">Phone</span><span class="ps-val" id="ps-phone">—</span></div>
+      </div>
+      <div class="profile-section">
+        <h3>🏪 Kitchen Info</h3>
+        <div class="ps-row"><span class="ps-label">Restaurant</span><span class="ps-val">Atharav Kitchen</span></div>
+        <div class="ps-row"><span class="ps-label">Location</span><span class="ps-val">Bank More, Dhanbad</span></div>
+        <div class="ps-row"><span class="ps-label">Owner</span><span class="ps-val"><a href="https://wa.me/917903567007" style="color:var(--lime);text-decoration:none;" target="_blank" rel="noopener noreferrer">WhatsApp Owner</a></span></div>
+        <div class="ps-row"><span class="ps-label">Emergency</span><span class="ps-val"><a href="tel:+917903567007" style="color:var(--lime);text-decoration:none;">+91 79035 67007</a></span></div>
+      </div>
+      <div class="profile-section">
+        <h3>⚙️ App Settings</h3>
+        <div class="ps-row">
+          <span class="ps-label">Sound Alerts</span>
+          <span class="ps-val"><label style="cursor:pointer;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="sound-pref" checked style="accent-color:var(--lime);width:16px;height:16px;"> On</label></span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-label">Vibration</span>
+          <span class="ps-val"><label style="cursor:pointer;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="vibr-pref" checked style="accent-color:var(--lime);width:16px;height:16px;"> On</label></span>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">🚪 End Shift & Logout</button>
+      <div class="scroll-pad"></div>
+    </div>
+
+  </div><!-- /tab-content -->
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="bn-item active" id="bn-orders" onclick="switchTab('orders')">
+      <div class="bn-icon">📦</div>
+      <div class="bn-lbl">Orders</div>
+      <div class="bn-dot" id="bn-dot"></div>
+    </div>
+    <div class="bn-item" id="bn-map" onclick="switchTab('map')">
+      <div class="bn-icon">🗺️</div>
+      <div class="bn-lbl">Navigate</div>
+    </div>
+    <div class="bn-item" id="bn-earnings" onclick="switchTab('earnings')">
+      <div class="bn-icon">💰</div>
+      <div class="bn-lbl">Earnings</div>
+    </div>
+    <div class="bn-item" id="bn-profile" onclick="switchTab('profile')">
+      <div class="bn-icon">👤</div>
+      <div class="bn-lbl">Profile</div>
+    </div>
+  </div>
+
+</div><!-- /app-screen -->
+
+<!-- ======= NEW ORDER MODAL ======= -->
+<div id="nom">
+  <div class="nom-box">
+    <div class="nom-hdr">
+      <h2>🔔 New Order!</h2>
+      <p>Accept within <span id="nom-countdown">30</span> seconds</p>
+    </div>
+    <div class="nom-body">
+      <div class="nom-info" id="nom-info"></div>
+      <div class="nom-total">
+        <div>
+          <div class="nt-lbl">Order Total</div>
+          <div class="nt-amt" id="nom-total-amt">₹0</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="nt-lbl">Payment</div>
+          <div style="font-size:0.85rem;font-weight:800;color:var(--text);" id="nom-pay">COD</div>
+        </div>
+      </div>
+      <div class="nom-btns">
+        <button class="nom-accept" onclick="acceptOrder()">✅ Accept Order</button>
+        <button class="nom-reject" onclick="rejectOrder()">✕ Skip</button>
+      </div>
+      <div class="nom-timer">Auto-skip in <span id="nom-timer-txt">30</span>s</div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="rider-toast"></div>
+
+<script src="js/core/env-config.js?v=26"></script>
+<script src="js/core/firebase-config.js?v=26"></script>
+
+<script src="js/rider/rider.js?v=26"></script>
+</body>
+</html>
